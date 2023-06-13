@@ -6,7 +6,7 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     rollupOptions: {
-      external: ['public'], // specifica il file da escludere dalla build
+      external: ['public/libs/loader.js'], // specifica il file da escludere dalla build
     },
   },
 });
