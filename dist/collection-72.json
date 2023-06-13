@@ -1,0 +1,29 @@
+{
+    "ARitems":[{"name":"prova",
+                "label":"Prova",
+                "dummy":"./Resources/Models/monkey.gltf",
+                "artext":"Lorem IPSUMN_1",
+                "arimage":"./Resources/Images/poster_1.jpg",
+                "arvideo":"./Resources/Videos/output.mp4",
+                "araudio":"./Resources/Audios/audio.wav",
+                "marker":"",
+                "position_x":"0","position_y":"-0.5","position_z":"0",
+                "scale_x":"5","scale_y":"5","scale_z":"5",
+                "rotation_x":"0","rotation_y":"0","rotation_z":"0"},
+
+                {"name":"prova2",
+                "label":"Prova2",
+                "dummy":"./Resources/Models/monkey.gltf",
+                "artext":"Lorem IPSUMN_2",
+                "arimage":"./Resources/Images/poster_1.jpg",
+                "arvideo":"./Resources/Videos/dj.mp4",
+                "araudio":"./Resources/Audios/audio.wav",
+                "marker":"",
+                "position_x":"0","position_y":"-0.5","position_z":"0",
+                "scale_x":"5","scale_y":"5","scale_z":"5",
+                "rotation_x":"0","rotation_y":"0","rotation_z":"0"}
+
+                
+            ],
+    "Mind":"./Resources/Targets/davideT.bin"
+}
