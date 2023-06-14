@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { MindARThree } from 'mind-ar/dist/mindar-image-three.prod';
-import { loadGLTF, loadAudio, loadVideo, loadTexture } from '/public/libs/loader.js';
+import { loadGLTF, loadAudio, loadVideo, loadTexture } from './public/libs/loader.js';
 
 var renderer, scene, camera;
 var audio, videoPanel, videoSource, text, image;
@@ -165,7 +165,7 @@ async function loadModels(ARitems, mindarTemp) {
 
 
     anchorTemp.onTargetFound = () => {
-
+      scene.add(anchorTemp.group);
     }
     anchorTemp.onTargetLost = () => {
 
