@@ -165,7 +165,7 @@ async function loadModels(ARitems, mindarTemp) {
 
 
     anchorTemp.onTargetFound = () => {
-      scene.add(anchorTemp.group);
+     // scene.add(anchorTemp.group);
     }
     anchorTemp.onTargetLost = () => {
 
