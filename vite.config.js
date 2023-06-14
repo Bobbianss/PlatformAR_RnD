@@ -5,7 +5,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   build: {
     outDir: 'dist',
-    base:'./',
+    base:'/PlatformAR_RnD/',
     rollupOptions: {
       external: ['public/libs/loader.js'], // specifica il file da escludere dalla build
     },
