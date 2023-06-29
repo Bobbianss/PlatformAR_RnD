@@ -1,5 +1,5 @@
-import {GLTFLoader} from "../../node_modules/three/examples/jsm/loaders/GLTFLoader.js";
-import * as THREE from "../../node_modules/three/build/three.module.js"
+import {GLTFLoader} from "../../node_modules/three/examples/jsm//loaders/GLTFLoader.js";
+import * as THREE from "../../node_modules/three/build/three.module.js";
 
 //const THREE = window.MINDAR.IMAGE? window.MINDAR.IMAGE.THREE: window.MINDAR.FACE.THREE;
 
@@ -22,20 +22,20 @@ export const loadAudio = (path) => {
 }
 
 export const loadVideo = (path) => {
-    return new Promise((resolve, reject) => {
-      const video = document.createElement("video");
-      video.addEventListener('loadedmetadata', () => {
-        video.setAttribute('playsinline', '');
-        resolve(video);
-      });
-      video.addEventListener('error', () => {
-        reject(new Error(`Failed to load video at ${path}`));
-      });
-      video.src = path;
-      video.load();
-     
+  return new Promise((resolve, reject) => {
+    const video = document.createElement("video");
+    video.addEventListener('loadedmetadata', () => {
+      video.setAttribute('playsinline', '');
+      resolve(video);
     });
-  }
+    video.addEventListener('error', () => {
+      reject(new Error(`Failed to load video at ${path}`));
+    });
+    video.src = path;
+    video.load();
+
+  });
+}
 
 export const loadTexture = (path) => {
   return new Promise((resolve, reject) => {
