@@ -1,6 +1,13 @@
 import * as THREE from "three";
 import { MindARThree } from 'mind-ar/dist/mindar-image-three.prod';
 import { loadGLTF, loadAudio, loadVideo, loadTexture } from './public/libs/loader.js';
+import ButtonCreator from "./public/libs/ButtonCreator.js";
+import TextPanel from "./public/libs/TextPanel";
+import ImagePanel from "./public/libs/ImagePanel.js";
+import VideoPanel from "./public/libs/VideoPanel.js";
+
+
+var buttonCreator= new ButtonCreator();
 
 //AR ENGINE
 var renderer, scene, camera;
@@ -22,40 +29,35 @@ var models = [];
 //read variable path of json file
 let id = document.getElementById('json-cfg-url').value;
 
-//Buttons Sprite
-let imageButton, videoButton, audioButton, textButton;
-//Buttons to 
-let nextImg, prevImg, playVideo;
+//PATH SPRITES -> Buttons
+const pathSpriteImgBtn = "./Resources/Sprites/img.png";
+const pathSpriteVideoBtn = "./Resources/Sprites/video.png";
+const pathSpriteAudioBtn = "./Resources/Sprites/audio.png";
+const pathSpriteTxtBtn = "./Resources/Sprites/txt.png";
+
 
 // Raycaster
-const raycaster = new THREE.Raycaster();
+let raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+
+let startY = 0;
+let direction = 0;
+let isMouseDown = false;
+const scrollSpeed = 0.01;
 
 // Creare un listener audio e aggiungerlo alla camera
 const listener = new THREE.AudioListener();
 
 document.addEventListener('DOMContentLoaded', async () => {
 
-  [audioButton, videoButton, imageButton, textButton] = await Promise.all([
-    createImage("./Resources/Sprites/audio.png"),
-    createImage("./Resources/Sprites/video.png"),
-    createImage("./Resources/Sprites/img.png"),
-    createImage("./Resources/Sprites/txt.png"),
-  ]);
-
-
-
   const { mind, ARitems } = await loadARItems(id);
-
   const start = async () => {
-
-    const mindarThree = new MindARThree({
-      container: document.body,
-      imageTargetSrc: mind,
-      maxTrack: 30,
-    });
-
-    renderer  = mindarThree.renderer;
+  const mindarThree = new MindARThree({
+    container: document.body,
+    imageTargetSrc: mind,
+    maxTrack: 30,
+  });
+    renderer= mindarThree.renderer;
     scene=mindarThree.scene;
     camera=mindarThree.camera;
 
@@ -73,14 +75,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     //-----------------------EVENTS ASSIGN---------------------------------
 
-    window.addEventListener('touchstart', onTouchStart, false);
+    window.addEventListener('touchstart', onTouchStart, false);  
     window.addEventListener('mousedown', onMouseDown, false);
+      
+    
   } // end start
 
 
-
-
   start();
+
+ 
 
 
 
@@ -98,6 +102,7 @@ async function loadARItems(pathJsonFile) {
 
     data.ARitems.forEach(item => {
       const ARitem = {
+        name: item.name,
         model: item.dummy,
         text: item.artext,
         image: item.arimage,
@@ -138,40 +143,48 @@ async function loadModels(ARitems, mindarTemp) {
       new THREE.Vector3(bbox.max.x, bbox.max.y, bbox.max.z),
     ];
 
-    audioButton.position.copy(corners[0]);
-    videoButton.position.copy(corners[1]);
-    textButton.position.copy(corners[2]);
-    imageButton.position.copy(corners[3]);
-
     models.push(modelTemp);
-    const anchorTemp = mindarTemp.addAnchor(index);
+    let anchorTemp = mindarTemp.addAnchor(index);
     anchorTemp.group.add(modelTemp.scene);
     anchorTemp.group.add(identifyBBox(modelTemp));
 
-    //add Buttons
-    anchorTemp.group.add(audioButton);
-    anchorTemp.group.add(videoButton);
-    anchorTemp.group.add(imageButton);
-    anchorTemp.group.add(textButton);
-    
+    // Conditionally add Buttons
+    if(item.audio) {
+      let audioButton = buttonCreator.createButton(pathSpriteAudioBtn,()=>console.log("sono un audio"));
+      audioButton.position.copy(corners[0]);
+      anchorTemp.group.add(audioButton);
       audioSource = await createAudio(item.audio, listener);
-      textPanel = await createTextPanel(item.text);
-      videoPanel=await createVideoPanel(item.video,listener);
-      imagePanel =await createImagePanel(item.image);
-      imagePanel.position.copy(new THREE.Vector3(0,0.35,0));
+    }
 
-      textPanel.visible=false;
-      videoPanel.visible=false;
-      imagePanel.visible=false;
+    if(item.video) {
+      let videoPanel= new VideoPanel(item.video,listener);
+      let meshPanel= await videoPanel.createPanel();
+      let videoButton = buttonCreator.createButton(pathSpriteVideoBtn,()=>videoPanel.toggleVisibility());
+      videoButton.position.copy(corners[1]);
+      anchorTemp.group.add(videoButton);
+      videoButton.add(meshPanel);
+    }
 
-      textButton.add(textPanel);
-      videoButton.add(videoPanel);
-      imageButton.add(imagePanel);
+    if(item.image) {
+      let imagePanel= new ImagePanel([item.image,item.image]);
+      let panelMesh=imagePanel.getPanel();
+      let imageButton =  buttonCreator.createButton(pathSpriteImgBtn, ()=>imagePanel.toggleVisibility());
+      imageButton.position.copy(corners[3]);
+      anchorTemp.group.add(imageButton);
+      imageButton.add(panelMesh);
+    }
 
-
+    if(item.text) {
+      let textPanel = new TextPanel(item.text)
+      let panelMesh = textPanel.getPanel();
+      let textButton = buttonCreator.createButton(pathSpriteTxtBtn, ()=>textPanel.toggleVisibility());
+      textButton.position.copy(corners[2]);
+      anchorTemp.group.add(textButton);
+      textButton.add(panelMesh);
+    }
 
     anchorTemp.onTargetFound = () => {
-     // scene.add(anchorTemp.group);
+      // scene.add(anchorTemp.group);
     }
     anchorTemp.onTargetLost = () => {
 
@@ -179,6 +192,7 @@ async function loadModels(ARitems, mindarTemp) {
     arrayAnchors.push(anchorTemp);
   }
 }//[m]loadModels
+
 
 
 function identifyBBox(tempModel) {
@@ -190,61 +204,7 @@ function identifyBBox(tempModel) {
   return helper;
 }
 
-async function createModel(url, position, rotation, scale) {
-  const gltf = await loadGLTF(url);
-  const model = gltf.scene;
 
-  // Aggiungi le trasformazioni
-  model.position.set(position.x, position.y, position.z);
-  model.scale.set(scale.x, scale.y, scale.z);
-  model.rotation.set(rotation.x, rotation.y, rotation.z);
-
-  return model;
-}
-async function createImage(url) {
-  const texture = await loadTexture(url);
-  const material = new THREE.MeshBasicMaterial({ map: texture });
-  const geometry = new THREE.PlaneGeometry(0.1, 0.1);
-  return new THREE.Mesh(geometry, material);
-}
-
-async function createTextPanel(text) {
-  // Crea una texture di testo
-  let texture = createTextTexture(text);
-
-  // Crea un materiale utilizzando la texture
-  let material = new THREE.MeshBasicMaterial({ map: texture });
-
-  // Crea un piano utilizzando il materiale
-  let geometry = new THREE.PlaneGeometry(1, 0.5);
-  let plane = new THREE.Mesh(geometry, material);
-
-  return plane;
-}
-async function createImagePanel(url){
-  let imageTexture = await loadTexture(url);
-
-  let material = new THREE.MeshBasicMaterial({map:imageTexture});
-  let geometry= new THREE.PlaneGeometry(1,0.5);
-  let plane =new THREE.Mesh(geometry,material);
-  return plane;
-}
-async function createVideoPanel(url, listener) {
-  
-  videoSource = await loadVideo(url);
-  const videoTexture = new THREE.VideoTexture(videoSource);
-  const material = new THREE.MeshBasicMaterial({ map: videoTexture });
-
-  const audio = await createAudio(url, listener);
-
-  const geometry = new THREE.PlaneGeometry();
-  const videoPanel = new THREE.Mesh(geometry, material);
-
-  // Add audio to the video panel
-  videoPanel.add(audio);
-  
-  return videoPanel;
-}
 async function createAudio(url, listener) {
   const audio = new THREE.Audio(listener);
   const buffer = await loadAudio(url);
@@ -253,35 +213,6 @@ async function createAudio(url, listener) {
   audio.setVolume(0.5);
   return audio;
 }
-//_______________________________________________________________________________
-
-function createTextTexture(text) {
-  // Creare un elemento canvas
-  let canvas = document.createElement('canvas');
-  let context = canvas.getContext('2d');
-
-  // Imposta le dimensioni del canvas
-  canvas.width = 1024;
-  canvas.height = 512;
-
-  // Imposta lo stile del testo
-  context.font = '60px Arial';
-  context.fillStyle = 'white';
-  context.textAlign = 'center';
-  context.textBaseline = 'middle';
-
-  // Disegna il testo al centro del canvas
-  context.fillText(text, canvas.width / 2, canvas.height / 2);
-
-  // Crea una texture da canvas
-  let texture = new THREE.Texture(canvas);
-
-  // Aggiorna la texture
-  texture.needsUpdate = true;
-
-  return texture;
-}
-
 
 //________________________HANDLE EVENTS_______________________________________
 
@@ -310,40 +241,7 @@ async function handleAudioButton() {
       state.isAudioPlaying = false;
   }
 }
-function handleTextButton() {
-  // Se il testo non è visibile, rendilo visibile
-  if (!state.isTextVisible) {
-    textPanel.visible = true;
-    state.isTextVisible = true;
-  } 
-  // Se il testo è visibile, nascondilo
-  else {
-    textPanel.visible = false;
-    state.isTextVisible = false;
-  }
-}
-function handleVideoButton(){
-  // Se il video non è visibile, mostralo e fai play
-  if(!state.isVideoVisible){
-    videoPanel.visible=true;
-    videoSource.play();
-    state.isVideoVisible=true;
-    // Se il video è visibile, nascondilo e ricarica il video
-  }else{
-    videoPanel.visible=false;
-    videoSource.load();
-    state.isVideoVisible=false;
-  }
-}
-function handleImageButton(){
-  if(!state.isImageVisible){
-    imagePanel.visible=true;
-    state.isImageVisible=true;
-  }else{
-    imagePanel.visible=false;
-    state.isImageVisible=true;
-  }
-}
+
 
 //______________________________EVENTS FUNCTIONS________________________________
 
@@ -385,15 +283,17 @@ function onMouseDown(event) {
 
   // Calcola gli oggetti che intersecano il raggio
   let intersects = raycaster.intersectObjects(scene.children, true);
+ 
   for (let i = 0; i < intersects.length; i++) {
-    if (intersects[i].object === imageButton) {
-      handleImageButton()
-    } else if (intersects[i].object === videoButton) {
-      handleVideoButton();
-    } else if (intersects[i].object === audioButton) {
-      handleAudioButton();
-    } else if (intersects[i].object === textButton) {
-      handleTextButton();
+    
+   
+    if(typeof intersects[i].object.onClick==='function'){
+      intersects[i].object.onClick();
     }
   }
 }
+
+
+
+
+
