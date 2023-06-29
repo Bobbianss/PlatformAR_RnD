@@ -59,7 +59,6 @@ class VideoPanel {
       this.playButton.material.map= this.buttonCreator.createTexture(pathPauseBtn);
       // this.audioSource.play();
       this.isPlaying = true;
-      pauseAllVideos();
     }
   
     pause() {

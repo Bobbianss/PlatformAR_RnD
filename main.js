@@ -30,10 +30,10 @@ var models = [];
 let id = document.getElementById('json-cfg-url').value;
 
 //PATH SPRITES -> Buttons
-const pathSpriteImgBtn = "./Resources/Sprites/img.png";
-const pathSpriteVideoBtn = "./Resources/Sprites/video.png";
-const pathSpriteAudioBtn = "./Resources/Sprites/audio.png";
-const pathSpriteTxtBtn = "./Resources/Sprites/txt.png";
+const pathSpriteImgBtn = "Resources/Sprites/img.png";
+const pathSpriteVideoBtn = "Resources/Sprites/video.png";
+const pathSpriteAudioBtn = "Resources/Sprites/audio.png";
+const pathSpriteTxtBtn = "Resources/Sprites/txt.png";
 
 
 // Raycaster
@@ -223,7 +223,7 @@ async function handleAudioButton() {
       audioSource.play();
 
       // Cambia l'immagine del pulsante
-      const texture = await loadTexture("./Resources/Sprites/link.png");
+      const texture = await loadTexture("Resources/Sprites/link.png");
       audioButton.material.map = texture;
       audioButton.material.needsUpdate = true;
 
@@ -234,7 +234,7 @@ async function handleAudioButton() {
       audioSource.pause();
 
       // Cambia l'immagine del pulsante
-      const texture = await loadTexture("./Resources/Sprites/audio.png");
+      const texture = await loadTexture("Resources/Sprites/audio.png");
       audioButton.material.map = texture;
       audioButton.material.needsUpdate = true;
 
