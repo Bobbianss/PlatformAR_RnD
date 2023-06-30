@@ -5,6 +5,8 @@ import { loadVideo } from "./loader";
 import pathPlayBtn from "../Resources/Sprites/img.png";
 import pathPauseBtn from "../Resources/Sprites/iframe.png";
 
+
+
 class VideoPanel {
  
     constructor(videoURL, audioSource) {
