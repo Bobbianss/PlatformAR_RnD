@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://bobbianss.github.io/PlatformAR_RnD/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
