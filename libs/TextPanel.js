@@ -1,7 +1,11 @@
 import * as THREE from "../../node_modules/three/build/three.module.js";
 import ButtonCreator from "./ButtonCreator.js";
-const pathPreviBtn = "Resources/Sprites/img.png";
-const pathNextBtn = "Resources/Sprites/audio.png";
+
+
+import pathPreviBtn from "../Resources/Sprites/img.png";
+import pathNextBtn from "../Resources/Sprites/audio.png";
+
+
 class TextPanel {
   constructor(text) {
     this.text = text;
