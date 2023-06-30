@@ -3,8 +3,8 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base:'/PlatformAR_RnD/',
   build: {
-    base:'/PlatformAR_RnD/',
     rollupOptions:{
       external: ['public/libs/*'], // specifica il file da escludere dalla build
     },
