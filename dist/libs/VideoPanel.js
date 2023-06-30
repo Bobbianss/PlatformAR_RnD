@@ -2,10 +2,9 @@ import * as THREE from "../../node_modules/three/build/three.module.js";
 import ButtonCreator from "./ButtonCreator";
 import { loadVideo } from "./loader";
 
+
 import pathPlayBtn from "../Resources/Sprites/img.png";
 import pathPauseBtn from "../Resources/Sprites/iframe.png";
-
-
 
 class VideoPanel {
  
